@@ -252,7 +252,7 @@ select * from Employees
 where FirstName in ('Jacob','Brooks','Harper');
 
 
--- Nested Select = really significant :-|
+-- Nested Select = really significant 
 select Departments.Name from Departments 
 where 
 ID in ( select DepartmentID from Employees where MonthlySalary <=210 );
@@ -269,10 +269,11 @@ select ID, FirstName,MonthlySalary from Employees
 where DepartmentID=1
 
 
-select ID, FirstName,MonthlySalary from Employees
+select ID, FirstName, MonthlySalary from Employees
 where DepartmentID=1
 Order By FirstName ;
 
+-- It's not mandatory to write "ASC" (ascending) when using ORDER BY in SQL Server. By default, it will sort in ascending order. If you want descending order, you can use "DESC".
 select ID, FirstName,MonthlySalary from Employees
 where DepartmentID=1
 Order By FirstName ASC;
@@ -700,6 +701,8 @@ FROM            Employees INNER JOIN
                          Departments ON Employees.DepartmentID = Departments.ID INNER JOIN
                          Countries ON Employees.CountryID = Countries.ID
 	where Countries.Name = 'USA';
+
+
 
 
 ----------------------------------------------------------------------------
