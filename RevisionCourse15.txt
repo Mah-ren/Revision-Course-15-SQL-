@@ -273,7 +273,7 @@ select ID, FirstName, MonthlySalary from Employees
 where DepartmentID=1
 Order By FirstName ;
 
--- It's not mandatory to write "ASC" (ascending) when using ORDER BY in SQL Server. By default, it will sort in ascending order. If you want descending order, you can use "DESC".
+-- It's not mandatory to write "ASC" (ascending) when using ORDER BY in SQL Server. By default, it will sort in ascending order. If you want descending order, you can use "DESC"  .
 select ID, FirstName,MonthlySalary from Employees
 where DepartmentID=1
 Order By FirstName ASC;
@@ -317,10 +317,12 @@ Select * from Employees;
 Select top 5 * from Employees;
 
 
+--it's generally not recommended to use TOP without ORDER BY when you have a specific requirement for the order of the results.
+
 -- This will show top 10% of the data.
 select top 10 percent * from Employees;
 
--- this will show the all salaries ordered from the heighest to lowest.
+-- this will show the all salaries ordered from the heighest to lowest .
 select  MonthlySalary from employees
 order by MonthlySalary Desc;
 
@@ -330,7 +332,7 @@ order by MonthlySalary Desc;
 select distinct MonthlySalary from employees
 order by MonthlySalary Desc;
 
--- this will show the heighest 3 salaries.
+-- this will show the heighest 3 salaries without redundancy.
 select  distinct  top 3 MonthlySalary from employees
 order by MonthlySalary Desc;
 
@@ -361,12 +363,12 @@ Order By MonthlySalary ASC
 Select A= 5 * 4 , B= 6/2 
 
 
-
+-- This query doesn't interact with the data in the "employees" table
 Select A= 5 * 4 , B= 6/2 
 from employees
 
 
-
+-- but this does :-)
 Select ID, FirstName,  A = MonthlySalary/2
 from employees
 
@@ -596,50 +598,24 @@ Where firstName like '[a-l]%';
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 -- SQL JOIN ----------------------------------------------------------------------------
-A JOIN clause is used to combine rows from two or more tables, based on a related column between them.
 
-Different Types of SQL JOINs
-Here are the different types of the JOINs in SQL:
-
-(INNER) JOIN: Returns records that have matching values in both tables
-LEFT (OUTER) JOIN: Returns all records from the left table, and the matched records from the right table
-RIGHT (OUTER) JOIN: Returns all records from the right table, and the matched records from the left table
-FULL (OUTER) JOIN: Returns all records when there is a match in either left or right table
+--(INNER) JOIN: Returns records that have matching values in both tables
+--LEFT (OUTER) JOIN: Returns all records from the left table, and the matched records from the right table
+--RIGHT (OUTER) JOIN: Returns all records from the right table, and the matched records from the left table
+--FULL (OUTER) JOIN: Returns all records when there is a match in either left or right table
 
 
-
-
-
-
-SQL INNER JOIN
-The SQL INNER JOIN joins two tables based on a common column, and selects records that have matching values in these columns.
-
-
-
-
-
-
-
-Example
 SELECT Customers.customer_id, Customers.first_name, Orders.amount
 FROM Customers
 INNER JOIN Orders
 ON Customers.customer_id = Orders.customer;
 
-
-Here, the SQL command selects customer_id and first_name columns (from the Customers table) and the amount column (from the Orders table).
-
-And, the result set will contain those rows where there is a match between customer_id (of the Customers table) and customer (of the Orders table).
-
-Syntax of INNER JOIN
-The syntax of INNER JOIN is:
-
 SELECT columns
 FROM table1
 INNER JOIN table2
 ON table1.column_name = table2.column_name;
-INNER JOIN With WHERE Clause
-Here's an example of the INNER JOIN with the WHERE clause:
+
+
 
 SELECT Customers.customer_id, Customers.first_name, Orders.amount
 FROM Customers
@@ -648,9 +624,9 @@ ON Customers.customer_id = Orders.customer
 WHERE Orders.amount >= 500;
 
 
-Here, the SQL command joins two tables and selects rows where the amount is greater than or equal to 500.
+--Here, the SQL command joins two tables and selects rows where the amount is greater than or equal to 500.
 
-MYSQL
+--MYSQL
 -- Join and Inner Join are the same
 
 select * from Customers;
@@ -702,16 +678,156 @@ FROM            Employees INNER JOIN
                          Countries ON Employees.CountryID = Countries.ID
 	where Countries.Name = 'USA';
 
+-- left join ------------------------------------------------------------------------------------------
 
 
+--Left Join and Left Outer Join are the same.
+
+--Left Join: gets all data from table customers and only matched data from table orders
+SELECT Customers.CustomerID, Customers.Name, Orders.Amount
+FROM Customers 
+Left JOIN Orders 
+ON Customers.CustomerID = Orders.CustomerID;
+
+
+SELECT Customers.CustomerID, Customers.Name, Orders.Amount
+FROM Customers 
+Left Outer JOIN Orders 
+ON Customers.CustomerID = Orders.CustomerID;
+
+
+-- Right join and Full join ------------------------------------------------------------------------------------------
+
+--Inner Join
+SELECT        Customers.CustomerID, Customers.Name, Orders.Amount
+FROM            Customers INNER JOIN
+                         Orders ON Customers.CustomerID = Orders.CustomerID
+--Left Join
+SELECT        Customers.CustomerID, Customers.Name, Orders.Amount
+FROM            Customers LEFT OUTER JOIN
+                         Orders ON Customers.CustomerID = Orders.CustomerID
+--Right Join
+SELECT        Customers.CustomerID, Customers.Name, Orders.Amount
+FROM            Customers RIGHT OUTER JOIN
+                         Orders ON Customers.CustomerID = Orders.CustomerID
+--Full Join
+SELECT        Customers.CustomerID, Customers.Name, Orders.Amount
+FROM            Customers FULL OUTER JOIN
+                         Orders ON Customers.CustomerID = Orders.CustomerID
+
+-- CREATE VIEW ----------------------------------------------------------------------------
+CREATE VIEW view_name AS
+SELECT column1, column2, ...
+FROM table_name
+WHERE condition;
+
+--Note: A view always shows up-to-date data! The database engine recreates the view, every time a user queries it.
+----------------------------------------------------------------------------
+
+-- Exists ---------------------------------------------------------------------------------------------------------------------------
+
+
+select X='yes'
+where  exists 
+   ( 
+	select * from Orders
+	where customerID= 3 and Amount < 600
+	)
+
+
+select * from Customers T1
+where 
+  exists 
+   ( 
+	select * from Orders
+	where customerID= T1.CustomerID and Amount < 600
+	)
+
+--More optimized and faster
+select * from Customers T1
+where 
+  exists 
+   ( 
+	select top 1 * from Orders
+	where customerID= T1.CustomerID and Amount < 600
+	)
+
+
+--More optimized and faster
+select * from Customers T1
+where 
+  exists 
+   ( 
+	select top 1 R='Y'  from Orders
+	where customerID= T1.CustomerID and Amount < 600
+	)
+
+-- union (to show more than two tables, but they must have the same columns)---------------------------------------------------
+
+select * from ActiveEmployees
+
+select * from ResignedEmployees
+
+
+select * from ActiveEmployees
+Union
+select * from ResignedEmployees
+
+--this will remove the redundancy from the resultset (distinct results only)
+select * from Departments
+union 
+select * from Departments;
+
+--this will append data regardeless of any redundancy
+select * from Departments
+union ALL
+select * from Departments;
+
+--Case ----------------------------------------------------------------------------
+
+select ID, FirstName, LastName, GendorTitle =
+CASE
+    WHEN Gendor='M' THEN 'Male'
+    WHEN Gendor='F' THEN 'Female'
+    ELSE 'Unknown'
+END
+
+from Employees
+
+-----------------------------------------
+
+select ID, FirstName, LastName,  GendorTitle =
+CASE
+    WHEN Gendor='M' THEN 'Male'
+    WHEN Gendor='F' THEN 'Female'
+    ELSE 'Unknown'
+END,
+
+Status =
+CASE
+    WHEN ExitDate is null THEN 'Active'
+    WHEN Gendor is Not null THEN 'Resigned'
+END
+from Employees
+
+-------------------------------------------------------
+
+select ID, FirstName, LastName,MonthlySalary,
+
+NewSalaryToBe =
+CASE
+    WHEN Gendor='M' THEN MonthlySalary * 1.1
+    WHEN Gendor='F' THEN MonthlySalary * 1.15
+   
+END
+from Employees
 
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
-----------------------------------------------------------------------------
-----------------------------------------------------------------------------
+
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
